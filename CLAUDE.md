@@ -300,7 +300,13 @@ VITE_API_URL=https://claudestock.onrender.com
 
 ## 变更日志
 
-### v3.0 — 2026-05-19（当前）
+### v3.1 — 2026-05-19（当前）
+**PDF 报告导出**
+- 新增 `frontend/src/utils/exportPdf.js`：使用 jsPDF 生成暗色金融终端风格 PDF
+- AIPanel 分析完成后出现"↓ 导出 PDF 报告"按钮
+- PDF 内容：股票名/代码/价格/涨跌、情绪/风险标签、AI 摘要、时间戳、免责声明
+
+### v3.0 — 2026-05-19
 **金融终端 UI 重设计**
 - 全新暗色主题（`#070a10` 背景）
 - 新增 `GET /api/kline/{symbol}` 接口（新浪历史K线）

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { analyzeStock } from '../api/client'
+import { exportAnalysisPDF } from '../utils/exportPdf'
 
 const SENTIMENT = {
   Bullish: { label: '看多', color: 'var(--up)',   bg: 'var(--up-dim)',   icon: '▲' },
@@ -101,31 +102,62 @@ export default function AIPanel({ stock, onDone }) {
           </div>
         )}
 
-        <button
-          onClick={handleAnalyze}
-          disabled={!stock || loading}
-          style={{
-            width: '100%',
-            padding: '10px',
-            borderRadius: 4,
-            border: '1px solid',
-            borderColor: (!stock || loading) ? 'var(--border)' : 'var(--accent)',
-            background: (!stock || loading) ? 'transparent' : 'var(--accent-dim)',
-            color: (!stock || loading) ? 'var(--muted)' : 'var(--accent)',
-            fontFamily: 'var(--mono)',
-            fontSize: 12,
-            letterSpacing: 2,
-            cursor: (!stock || loading) ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s',
-          }}
-        >
-          {loading ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <span className="live-dot" style={{ background: 'var(--accent)' }} />
-              ANALYZING...
-            </span>
-          ) : '[ KIMI ANALYZE ]'}
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <button
+            onClick={handleAnalyze}
+            disabled={!stock || loading}
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: 4,
+              border: '1px solid',
+              borderColor: (!stock || loading) ? 'var(--border)' : 'var(--accent)',
+              background: (!stock || loading) ? 'transparent' : 'var(--accent-dim)',
+              color: (!stock || loading) ? 'var(--muted)' : 'var(--accent)',
+              fontFamily: 'var(--mono)',
+              fontSize: 12,
+              letterSpacing: 2,
+              cursor: (!stock || loading) ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            {loading ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span className="live-dot" style={{ background: 'var(--accent)' }} />
+                ANALYZING...
+              </span>
+            ) : '[ KIMI ANALYZE ]'}
+          </button>
+
+          {result && (
+            <button
+              onClick={() => exportAnalysisPDF(stock, result)}
+              style={{
+                width: '100%',
+                padding: '8px',
+                borderRadius: 4,
+                border: '1px solid var(--border)',
+                background: 'transparent',
+                color: 'var(--muted)',
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: 1,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.target.style.borderColor = '#60a5fa'
+                e.target.style.color = '#60a5fa'
+              }}
+              onMouseLeave={e => {
+                e.target.style.borderColor = 'var(--border)'
+                e.target.style.color = 'var(--muted)'
+              }}
+            >
+              ↓ 导出 PDF 报告
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
