@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
-from routers import stock, analysis
+from routers import stock, analysis, kline
 
 load_dotenv()
 
@@ -20,6 +20,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(stock.router)
 app.include_router(analysis.router)
+app.include_router(kline.router)
 
 @app.get("/")
 async def root():

@@ -1,9 +1,70 @@
-body {
-  margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --bg:       #070a10;
+  --panel:    #0d1117;
+  --border:   #1c2333;
+  --border2:  #243047;
+  --text:     #c9d1d9;
+  --muted:    #586069;
+  --up:       #f03e3e;
+  --up-dim:   rgba(240,62,62,0.12);
+  --down:     #22c55e;
+  --down-dim: rgba(34,197,94,0.12);
+  --accent:   #e8b84b;
+  --accent-dim: rgba(232,184,75,0.1);
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Noto Sans SC', sans-serif;
 }
 
-#root {
-  width: 100%;
+html, body, #root {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.mono { font-family: var(--mono); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+@keyframes scan {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(100vh); }
+}
+
+.fade-up { animation: fadeUp 0.4s ease forwards; }
+.fade-up-1 { animation: fadeUp 0.4s 0.05s ease both; }
+.fade-up-2 { animation: fadeUp 0.4s 0.1s  ease both; }
+.fade-up-3 { animation: fadeUp 0.4s 0.15s ease both; }
+.fade-up-4 { animation: fadeUp 0.4s 0.2s  ease both; }
+
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--down);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--panel) 25%, var(--border) 50%, var(--panel) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

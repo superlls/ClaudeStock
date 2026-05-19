@@ -1,82 +1,135 @@
 import { useState, useEffect } from 'react'
 import { fetchHistory } from '../api/client'
 
-export default function HistoryTable() {
-  const [history, setHistory] = useState([])
+const SENT_MAP = {
+  Bullish: { label: '看多', color: 'var(--up)' },
+  Bearish: { label: '看空', color: 'var(--down)' },
+  Neutral: { label: '中性', color: '#e8b84b' },
+}
+const RISK_MAP = {
+  Low:    { label: '低', color: '#60a5fa' },
+  Medium: { label: '中', color: '#e8b84b' },
+  High:   { label: '高', color: 'var(--up)' },
+}
+
+export default function HistoryTable({ refreshKey }) {
+  const [rows, setRows]   = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadHistory = async () => {
-      try {
-        const data = await fetchHistory(10)
-        setHistory(data.data || [])
-      } catch (err) {
-        console.error('Failed to load history:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadHistory()
-  }, [])
+    fetchHistory(20)
+      .then(d => setRows(d.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [refreshKey])
 
-  if (loading) {
-    return <div className="text-center text-gray-500 py-4">加载历史记录...</div>
-  }
-
-  if (!history.length) {
-    return <div className="text-center text-gray-500 py-4">暂无历史记录</div>
-  }
+  const cols = ['代码', '名称', '价格', '涨跌', '情绪', '风险', '摘要', '时间']
 
   return (
-    <div className="mt-8 p-6 bg-white rounded-lg shadow-lg">
-      <h3 className="text-2xl font-bold text-gray-800 mb-4">历史分析</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="border-b-2 border-gray-300">
-            <tr className="text-gray-700">
-              <th className="text-left py-2 px-4">代码</th>
-              <th className="text-left py-2 px-4">名称</th>
-              <th className="text-left py-2 px-4">价格</th>
-              <th className="text-left py-2 px-4">涨跌幅</th>
-              <th className="text-left py-2 px-4">情绪</th>
-              <th className="text-left py-2 px-4">风险</th>
-              <th className="text-left py-2 px-4">时间</th>
+    <div style={{
+      background: 'var(--panel)',
+      border: '1px solid var(--border)',
+      borderRadius: 6,
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '10px 16px',
+        borderBottom: '1px solid var(--border)',
+        fontSize: 11,
+        color: 'var(--muted)',
+        fontFamily: 'var(--mono)',
+        letterSpacing: 2,
+        display: 'flex', alignItems: 'center', gap: 8
+      }}>
+        <span>ANALYSIS · HISTORY</span>
+        {!loading && (
+          <span style={{ color: 'var(--border2)' }}>({rows.length})</span>
+        )}
+      </div>
+
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+              {cols.map(c => (
+                <th key={c} style={{
+                  padding: '8px 12px', textAlign: 'left',
+                  color: 'var(--muted)', fontFamily: 'var(--mono)',
+                  fontSize: 10, letterSpacing: 1, fontWeight: 400,
+                  whiteSpace: 'nowrap'
+                }}>{c}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {history.map((item, idx) => (
-              <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="py-3 px-4 font-semibold">{item.symbol}</td>
-                <td className="py-3 px-4">{item.name || '-'}</td>
-                <td className="py-3 px-4">¥{item.price?.toFixed(2) || '-'}</td>
-                <td className={`py-3 px-4 ${parseFloat(item.change_pct) > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {item.change_pct}%
-                </td>
-                <td className="py-3 px-4">
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                    item.sentiment === 'Bullish' ? 'bg-green-100 text-green-800' :
-                    item.sentiment === 'Bearish' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {item.sentiment === 'Bullish' ? '看多' :
-                     item.sentiment === 'Bearish' ? '看空' : '中性'}
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                    item.risk_level === 'Low' ? 'bg-blue-100 text-blue-800' :
-                    item.risk_level === 'Medium' ? 'bg-orange-100 text-orange-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {item.risk_level === 'Low' ? '低' :
-                     item.risk_level === 'Medium' ? '中' : '高'}
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-gray-500 text-xs">
-                  {item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '-'}
+            {loading ? (
+              Array(4).fill(0).map((_, i) => (
+                <tr key={i}>
+                  {cols.map(c => (
+                    <td key={c} style={{ padding: '10px 12px' }}>
+                      <div className="skeleton" style={{ height: 12, width: '80%' }} />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : rows.length === 0 ? (
+              <tr>
+                <td colSpan={cols.length} style={{
+                  padding: '32px', textAlign: 'center',
+                  color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 11
+                }}>
+                  — NO RECORDS —
                 </td>
               </tr>
-            ))}
+            ) : rows.map((row, i) => {
+              const up   = parseFloat(row.change_pct) >= 0
+              const s    = SENT_MAP[row.sentiment] || SENT_MAP.Neutral
+              const rk   = RISK_MAP[row.risk_level] || RISK_MAP.Medium
+              return (
+                <tr key={i} style={{
+                  borderBottom: '1px solid var(--border)',
+                  transition: 'background 0.15s',
+                }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <td style={{ padding: '9px 12px', fontFamily: 'var(--mono)', color: 'var(--accent)', fontWeight: 500 }}>
+                    {row.symbol}
+                  </td>
+                  <td style={{ padding: '9px 12px', color: '#c9d1d9' }}>{row.name}</td>
+                  <td style={{ padding: '9px 12px', fontFamily: 'var(--mono)', color: '#c9d1d9' }}>
+                    {row.price?.toFixed(2)}
+                  </td>
+                  <td style={{
+                    padding: '9px 12px', fontFamily: 'var(--mono)',
+                    color: up ? 'var(--up)' : 'var(--down)'
+                  }}>
+                    {up ? '+' : ''}{row.change_pct}%
+                  </td>
+                  <td style={{ padding: '9px 12px' }}>
+                    <span style={{ color: s.color, fontFamily: 'var(--mono)', fontSize: 11 }}>{s.label}</span>
+                  </td>
+                  <td style={{ padding: '9px 12px' }}>
+                    <span style={{ color: rk.color, fontFamily: 'var(--mono)', fontSize: 11 }}>{rk.label}</span>
+                  </td>
+                  <td style={{
+                    padding: '9px 12px', color: 'var(--muted)', fontSize: 11,
+                    maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                  }}>
+                    {row.summary}
+                  </td>
+                  <td style={{
+                    padding: '9px 12px', fontFamily: 'var(--mono)', fontSize: 10,
+                    color: 'var(--muted)', whiteSpace: 'nowrap'
+                  }}>
+                    {row.created_at ? new Date(row.created_at).toLocaleString('zh-CN', {
+                      month: '2-digit', day: '2-digit',
+                      hour: '2-digit', minute: '2-digit'
+                    }) : '—'}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
