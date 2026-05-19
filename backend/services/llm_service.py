@@ -9,10 +9,11 @@ SYSTEM_PROMPT = """你是一位专业的A股分析师。
 {"summary": "2-3句话的分析总结", "sentiment": "Bullish|Neutral|Bearish", "risk_level": "Low|Medium|High"}
 禁止在JSON之外输出任何内容。"""
 
-client = OpenAI(
-    api_key=os.getenv("KIMI_API_KEY"),
-    base_url="https://api.moonshot.cn/v1"
-)
+def get_client():
+    return OpenAI(
+        api_key=os.getenv("KIMI_API_KEY"),
+        base_url="https://api.moonshot.cn/v1"
+    )
 
 async def analyze_stock(request: AnalysisRequest) -> AnalysisResponse:
     prompt = f"""请分析以下A股信息并返回JSON：
@@ -22,6 +23,7 @@ async def analyze_stock(request: AnalysisRequest) -> AnalysisResponse:
 涨跌幅：{request.change_pct}"""
 
     try:
+        client = get_client()
         response = client.chat.completions.create(
             model="moonshot-v1-8k",
             response_format={"type": "json_object"},

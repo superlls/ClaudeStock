@@ -2,12 +2,14 @@ import os
 from supabase import create_client, Client
 from models.schemas import StockAnalysis
 
-url = os.getenv("SUPABASE_URL")
-key = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+def get_supabase():
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_KEY")
+    return create_client(url, key)
 
 async def save_analysis(symbol: str, name: str, price: float, change_pct: str, summary: str, sentiment: str, risk_level: str):
     try:
+        supabase = get_supabase()
         response = supabase.table("stock_analyses").insert({
             "symbol": symbol,
             "name": name,
@@ -23,6 +25,7 @@ async def save_analysis(symbol: str, name: str, price: float, change_pct: str, s
 
 async def get_history(limit: int = 10):
     try:
+        supabase = get_supabase()
         response = supabase.table("stock_analyses").select("*").order("created_at", desc=True).limit(limit).execute()
         return response.data
     except Exception as e:
