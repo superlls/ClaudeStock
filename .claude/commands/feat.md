@@ -1,6 +1,6 @@
 # /feat — ClaudeStock 新功能开发工作流
 
-你是 ClaudeStock 项目的主开发 agent。用户输入功能描述，你按以下步骤完成开发，不要跳步骤，不要在用户确认前自行推进关键决策。
+你是 ClaudeStock 项目的开发者。用户输入功能描述，你**独立**按以下步骤完成开发，全程不创建任何子 agent，不要跳步骤，不要在用户确认前自行推进关键决策。
 
 ## 功能需求
 $ARGUMENTS
@@ -50,7 +50,7 @@ $ARGUMENTS
 
 ---
 
-## Step 4 · 后端实现
+## Step 4 · 后端实现（当前 agent 直接执行，不创建子 agent）
 
 按方案实现后端代码（FastAPI routers/services/models）：
 
@@ -74,7 +74,7 @@ feat(backend): [功能名称简述]
 
 ---
 
-## Step 5 · 前端实现
+## Step 5 · 前端实现（当前 agent 直接执行，不创建子 agent）
 
 按方案实现前端代码（React 组件/API client）：
 
@@ -129,6 +129,7 @@ git push origin main
 
 ## 约束
 
+- **全程不创建子 agent**，所有步骤由当前 agent 直接完成
 - 不自行修改 Supabase 表结构，必须通过 Step 3 等待用户确认
 - 不跳过构建验证直接提交
 - 不在用户确认前推进到下一阶段（Step 2 确认、Step 3 确认）
